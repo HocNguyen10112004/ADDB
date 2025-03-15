@@ -1,0 +1,118 @@
+/* General body styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 0;
+}
+
+/* Main container */
+.container {
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Header section with login and logout buttons */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* Styling for buttons */
+.btn {
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.login-btn {
+    background-color: #007bff;
+}
+
+.logout-btn {
+    background-color: #dc3545;
+}
+
+.create-post-btn {
+    background-color: #28a745;
+}
+
+.btn:hover {
+    opacity: 0.8;
+}
+
+/* Title for posts section */
+.posts-title {
+    font-size: 2em;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Posts layout */
+.posts {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.post-card {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: calc(100% - 20px); /* Mỗi bài viết chiếm 1/3 chiều rộng */
+    box-sizing: border-box;
+    margin-bottom: 20px;
+}
+
+.post-title {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+}
+
+.post-content {
+    font-size: 1.1em;
+    margin-bottom: 15px;
+    color: #555;
+}
+
+.post-info {
+    font-size: 0.9em;
+    color: #888;
+}
+
+/* If there are no posts */
+.no-posts {
+    text-align: center;
+    font-size: 1.2em;
+    color: #777;
+}
+
+/* Responsive design: For smaller screens, the posts will take up the full width */
+@media (max-width: 768px) {
+    .post-card {
+        width: calc(50% - 20px);  /* Half width on smaller screens */
+    }
+}
+
+@media (max-width: 480px) {
+    .post-card {
+        width: 100%;  /* Full width on very small screens */
+    }
+}
+a {
+    text-decoration: none; /* Loại bỏ gạch chân khỏi tất cả các thẻ <a> */
+}
+
+.post-title, .post-content {
+    text-decoration: none; /* Đảm bảo rằng tiêu đề và nội dung của bài viết không bị gạch chân */
+}

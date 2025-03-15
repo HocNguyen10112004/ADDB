@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ post.title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_post_detail.css') }}">
+</head>
+<body>
+
+<div class="container">
+    <h1>{{ post.title }}</h1>
+    <p>{{ post.content }}</p>
+    <p><strong>Đăng bởi:</strong> Người dùng ID: {{ post.user_id }} vào {{ post.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+
+    <h2>Bình luận</h2>
+    <div class="comments">
+    {% if comments %}
+        {% for comment in comments %}
+            <div class="comment 
+                {% if comment.sentiment == 'Positive' %} positive {% endif %}
+                {% if comment.sentiment == 'Neutral' %} neutral {% endif %}
+                {% if comment.sentiment == 'Negative' %} negative {% endif %}
+            ">
+                <p><strong>User ID: {{ comment.user_id }}</strong></p>
+                <p>{{ comment.content }}</p>
+                <p>{{ comment.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p> <!-- Hiển thị thời gian tạo bình luận -->
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>Không có bình luận nào.</p>
+    {% endif %}
+</div>
+    <!-- Form để người dùng đăng bình luận -->
+    {% if 'user_id' in session %}
+        <h3>Thêm bình luận</h3>
+        <form method="POST">
+            <textarea name="content" rows="4" placeholder="Nhập bình luận của bạn..." required></textarea>
+            <br>
+            <button type="submit">Đăng bình luận</button>
+        </form>
+    {% else %}
+        <p>Để lại bình luận, bạn cần đăng nhập.</p>
+    {% endif %}
+
+</div>
+
+</body>
+</html>

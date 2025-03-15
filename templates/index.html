@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentiment Analysis</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_index.css') }}">
+</head>
+<body>
+
+    <!-- Container for the entire page -->
+    <div class="container">
+
+        <!-- Kiểm tra xem người dùng đã đăng nhập hay chưa -->
+        <div class="header">
+            <div class="auth-links">
+                {% if 'user_id' in session %}
+                    <!-- Nếu người dùng đã đăng nhập, hiển thị nút Logout -->
+                    <a href="{{ url_for('auth.logout') }}" class="btn logout-btn">Logout</a>
+                {% else %}
+                    <!-- Nếu người dùng chưa đăng nhập, hiển thị nút Đăng nhập -->
+                    <a href="{{ url_for('auth.auth') }}" class="btn login-btn">Đăng Nhập</a>
+                {% endif %}
+            </div>
+
+            <!-- Nút đăng bài -->
+            {% if 'user_id' in session %}
+                <a href="{{ url_for('post.create_post') }}" class="btn create-post-btn">Đăng Bài Mới</a>
+            {% endif %}
+        </div>
+
+        <!-- Section displaying posts -->
+        <h1 class="posts-title">Danh Sách Bài Viết</h1>
+
+        {% if posts %}
+            <div class="posts">
+    {% for post in posts %}
+    
+        <div class="post-card">
+            <a href="{{ url_for('post.post_detail', post_id=post._id) }}">
+            <h2 class="post-title">{{ post.title }}</h2>
+            
+            <p class="post-content">{{ post.content }}</p>
+            <p class="post-info">Đăng bởi người dùng ID: {{ post.user_id }} vào {{ post.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+            </a>
+        </div>
+        
+    {% endfor %}
+</div>
+        {% else %}
+            <p class="no-posts">Không có bài viết nào.</p>
+        {% endif %}
+
+    </div>
+
+</body>
+</html>

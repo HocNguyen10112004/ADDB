@@ -1,0 +1,90 @@
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+from connect import connectToMongoDB
+from datetime import datetime
+from bson import ObjectId  # Import ObjectId từ bson
+from model import loadModel, sentimentAnalysisOneComment  # Import function phân loại cảm xúc
+post_bp = Blueprint('post', __name__)
+
+# Kết nối MongoDB
+client, db = connectToMongoDB()
+
+@post_bp.route('/post', methods=['GET', 'POST'])
+def create_post():
+    # Kiểm tra xem người dùng đã đăng nhập chưa
+    if 'user_id' not in session:
+        flash("Bạn cần đăng nhập để đăng bài!", 'error')
+        return redirect(url_for('auth.auth'))  # Nếu chưa đăng nhập, chuyển hướng đến trang đăng nhập
+
+    if request.method == 'POST':
+        title = request.form['title']
+        content = request.form['content']
+        user_id = session['user_id']  # Lấy ID người dùng từ session
+
+        # Lưu bài viết vào MongoDB
+        post = {
+            'title': title,
+            'content': content,
+            'user_id': user_id,
+            'created_at': datetime.now()  # Lưu thời gian tạo bài viết
+        }
+
+        db.posts.insert_one(post)
+        flash("Bài viết đã được đăng thành công!", 'success')
+        return redirect(url_for('home.home'))  # Chuyển hướng đến trang chủ
+
+    return render_template("post.html")  # Hiển thị form đăng bài
+
+
+# Tải mô hình phân loại
+model, tokenizer = loadModel()
+
+# Route hiển thị chi tiết bài viết
+@post_bp.route('/post_detail/<post_id>', methods=['GET', 'POST'])
+def post_detail(post_id):
+    # Lấy bài viết từ database
+    try:
+        post = db.posts.find_one({"_id": ObjectId(post_id)})  # Chuyển post_id thành ObjectId
+    except Exception as e:
+        flash(f"Error fetching post: {str(e)}", 'error')
+        return redirect(url_for('home.home'))  # Nếu không thể chuyển đổi ID, redirect về trang chủ
+
+    if not post:
+        flash("Bài viết không tồn tại.", 'error')
+        return redirect(url_for('home.home'))  # Nếu bài viết không tồn tại, trả về trang chủ
+
+    # Lấy các bình luận của bài viết
+    comments = db.comments.find({"post_id": ObjectId(post_id)})
+
+    if request.method == 'POST':
+        # Kiểm tra xem người dùng đã đăng nhập chưa
+        if 'user_id' not in session:
+            flash("Bạn cần đăng nhập để bình luận!", 'error')
+            return redirect(url_for('auth.auth'))  # Nếu chưa đăng nhập, chuyển hướng đến trang đăng nhập
+        
+        comment_content = request.form['content']  # Lấy nội dung bình luận từ form
+
+        if not comment_content:
+            flash("Bình luận không thể trống.", 'error')
+            return redirect(url_for('post.post_detail', post_id=post_id))  # Nếu nội dung bình luận trống, redirect lại trang bài viết
+
+        try:
+            # Phân loại cảm xúc của bình luận
+            sentiment = sentimentAnalysisOneComment(model, tokenizer, comment_content)
+
+            # Thêm bình luận vào MongoDB
+            comment = {
+                'post_id': ObjectId(post_id),
+                'user_id': session['user_id'],
+                'content': comment_content,
+                'sentiment': sentiment,  # Lưu phân loại cảm xúc
+                'created_at': datetime.now()
+            }
+
+            db.comments.insert_one(comment)  # Thực hiện lưu bình luận vào MongoDB
+            flash("Bình luận đã được đăng thành công!", 'success')
+            return redirect(url_for('post.post_detail', post_id=post_id))  # Chuyển hướng lại về trang chi tiết bài viết
+        except Exception as e:
+            flash(f"Không thể lưu bình luận: {str(e)}", 'error')  # Thông báo lỗi khi không lưu được bình luận
+            return redirect(url_for('post.post_detail', post_id=post_id))  # Nếu có lỗi, quay lại trang bài viết
+
+    return render_template('post_detail.html', post=post, comments=comments)

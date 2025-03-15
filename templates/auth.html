@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Ký / Đăng Nhập</title>
+    <!-- Link đến CSS Thuần -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script>
+        // Hàm chuyển đổi giữa form đăng ký và đăng nhập
+        function toggleForms(formType) {
+            if (formType === 'register') {
+                document.getElementById('register-form').style.display = 'block';
+                document.getElementById('login-form').style.display = 'none';
+                document.getElementById('link-register').classList.add('active');
+                document.getElementById('link-login').classList.remove('active');
+            } else {
+                document.getElementById('login-form').style.display = 'block';
+                document.getElementById('register-form').style.display = 'none';
+                document.getElementById('link-login').classList.add('active');
+                document.getElementById('link-register').classList.remove('active');
+            }
+        }
+
+        // Đảm bảo rằng form đăng ký được hiển thị khi tải trang đầu tiên
+        window.onload = function() {
+            toggleForms('login');
+            
+            // Hàm tự động ẩn thông báo sau 3 giây
+            var flashMessages = document.querySelector('.alert');
+            if (flashMessages) {
+                setTimeout(function() {
+                    flashMessages.style.opacity = '0';  // Mờ dần
+                    setTimeout(function() {
+                        flashMessages.style.display = 'none';  // Ẩn hoàn toàn sau khi mờ dần
+                    }, 1000);  // Chờ 1 giây để mờ dần
+                }, 3000);  // Sau 3 giây, bắt đầu mờ dần và ẩn
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <div class="form-card">
+                <h2 class="form-title">Đăng Ký / Đăng Nhập</h2>
+
+                <!-- Hiển thị thông báo lỗi hoặc thành công -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <div class="alert">
+                            <ul>
+                                {% for category, message in messages %}
+                                    <li>{{ message }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
+                <!-- Các liên kết để chuyển đổi giữa đăng ký và đăng nhập -->
+                <div class="links">
+                    <p>
+                        <a href="javascript:void(0);" id="link-register" class="active" onclick="toggleForms('register')">Đăng ký</a> |
+                        <a href="javascript:void(0);" id="link-login" onclick="toggleForms('login')">Đăng nhập</a>
+                    </p>
+                </div>
+
+                <!-- Form đăng ký -->
+                <form method="POST" action="/auth" id="register-form" class="form">
+                    <h3>Đăng Ký</h3>
+                    <div class="input-group">
+                        <label for="gmail">Gmail</label>
+                        <input type="email" id="gmail" name="gmail" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="full_name">Họ tên</label>
+                        <input type="text" id="full_name" name="full_name" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="password">Mật khẩu</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <button type="submit" name="register" class="submit-btn">Đăng ký</button>
+                </form>
+
+                <!-- Form đăng nhập -->
+                <form method="POST" action="/auth" id="login-form" class="form" style="display: none;">
+                    <h3>Đăng Nhập</h3>
+                    <div class="input-group">
+                        <label for="gmail">Gmail</label>
+                        <input type="email" id="gmail" name="gmail" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="password">Mật khẩu</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <button type="submit" name="login" class="submit-btn">Đăng nhập</button>
+                </form>
+
+                <!-- Nút quay về trang chủ -->
+                <a href="{{ url_for('home.home') }}" class="back-to-home">Trở về trang chủ</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
