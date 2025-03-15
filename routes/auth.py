@@ -2,10 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from werkzeug.security import generate_password_hash, check_password_hash
 from connect import connectToMongoDB
 
-# Đảm bảo khai báo Blueprint đúng tên
 auth_bp = Blueprint('auth', __name__, template_folder='templates')
-
-# Kết nối MongoDB
 client, db = connectToMongoDB()
 
 # Route đăng ký và đăng nhập
@@ -18,9 +15,7 @@ def auth():
 
         # Kiểm tra xem người dùng muốn đăng ký hay đăng nhập
         if 'register' in request.form:
-            # Xử lý đăng ký
             hashed_password = generate_password_hash(password)
-
             # Kiểm tra xem người dùng đã tồn tại chưa
             if db.users.find_one({'gmail': gmail}):
                 flash('Email đã được sử dụng, vui lòng thử email khác!', 'error')
@@ -42,12 +37,12 @@ def auth():
 
             if user and check_password_hash(user['password'], password):
                 # Lưu thông tin người dùng vào session
-                session['user_id'] = str(user['_id'])  # Lưu ID người dùng trong session
-                session['gmail'] = user['gmail']  # Lưu gmail người dùng vào session
-                session['full_name'] = user['full_name']  # Lưu tên đầy đủ vào session
+                session['user_id'] = str(user['_id'])  
+                session['gmail'] = user['gmail']  
+                session['full_name'] = user['full_name']  
 
                 flash('Đăng nhập thành công!', 'success')
-                return redirect(url_for('home.home'))  # Chuyển hướng đến trang chủ hoặc trang khác bạn muốn
+                return redirect(url_for('home.home')) 
             else:
                 flash('Thông tin đăng nhập không chính xác!', 'error')
                 return redirect(url_for('auth.auth'))

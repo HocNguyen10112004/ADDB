@@ -85,10 +85,7 @@ button {
 button:hover {
     background-color: #45a049;
 }
-/* 
-/* Định dạng cho phần người dùng chưa đăng nhập */
 
-/* Định dạng các nút đăng nhập và đăng bình luận */
 .auth-links a {
     text-decoration: none;
     background-color: #007BFF;
