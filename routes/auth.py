@@ -91,3 +91,34 @@ def profile():
     return render_template('profile.html', user=user, positive_comments=positive_comments,
                            neutral_comments=neutral_comments, negative_comments=negative_comments,
                            negative_posts_count=negative_posts_count)
+@auth_bp.route('/profile/<user_id>')
+def profile1(user_id):
+    # Lấy thông tin người dùng từ database
+    user = db.users.find_one({"_id": ObjectId(user_id)})
+    
+    if not user:
+        flash("Người dùng không tồn tại.", 'error')
+        return redirect(url_for('home.home'))
+
+    # Lấy các bình luận của người dùng này
+    comments = db.comments.find({"user_id": user_id})
+    
+    # Đếm số lượng bình luận theo từng loại cảm xúc
+    positive_count = db.comments.count_documents({"user_id": user_id, "sentiment": "Positive"})
+    neutral_count = db.comments.count_documents({"user_id": user_id, "sentiment": "Neutral"})
+    negative_count = db.comments.count_documents({"user_id": user_id, "sentiment": "Negative"})
+
+    # Lấy số lượng bài đăng tiêu cực của người dùng (tính theo cách đã thảo luận trước đó)
+    negative_posts_count = 0
+    posts = db.posts.find({"user_id": user_id})
+    for post in posts:
+        comments_for_post = db.comments.find({"post_id": post['_id']})
+        comments_list = list(comments_for_post)
+        negative_count_in_post = sum(1 for comment in comments_list if comment['sentiment'] == 'Negative')
+        
+        if len(comments_list) > 0 and (negative_count_in_post / len(comments_list)) > 0.5:
+            negative_posts_count += 1
+
+    return render_template('user_profile.html', user=user, comments=comments, 
+                           positive_count=positive_count, neutral_count=neutral_count,
+                           negative_count=negative_count, negative_posts_count=negative_posts_count)

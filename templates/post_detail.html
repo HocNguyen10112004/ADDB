@@ -53,7 +53,7 @@
                     {% if comment.sentiment == 'Neutral' %} neutral {% endif %}
                     {% if comment.sentiment == 'Negative' %} negative {% endif %}
                 ">
-                    <p><strong>{{ comment.full_name }}</strong></p>
+                    <p><strong><a href="{{ url_for('auth.profile1', user_id=comment.user_id) }}">{{ comment.full_name }}</a></strong></p>
                     <p>{{ comment.content }}</p>
                     <p>{{ comment.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p> <!-- Hiển thị thời gian tạo bình luận -->
                 </div>
