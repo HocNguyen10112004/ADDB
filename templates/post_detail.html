@@ -7,8 +7,12 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style_post_detail.css') }}">
 </head>
 <body>
+<div class="button-container">
+    <a href="{{ url_for('home.home') }}" class="back-to-home">Trở về trang chủ</a>
+</div>
 
 <div class="container">
+    
     <h1>{{ post.title }}</h1>
     <p>{{ post.content }}</p>
     <p><strong>Đăng bởi:</strong> Người dùng ID: {{ post.user_id }} vào {{ post.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
@@ -49,7 +53,7 @@
                     {% if comment.sentiment == 'Neutral' %} neutral {% endif %}
                     {% if comment.sentiment == 'Negative' %} negative {% endif %}
                 ">
-                    <p><strong>User ID: {{ comment.user_id }}</strong></p>
+                    <p><strong>{{ comment.full_name }}</strong></p>
                     <p>{{ comment.content }}</p>
                     <p>{{ comment.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p> <!-- Hiển thị thời gian tạo bình luận -->
                 </div>
