@@ -38,7 +38,55 @@ def create_post():
 # Tải mô hình phân loại
 model, tokenizer = loadModel()
 
-# Route hiển thị chi tiết bài viết
+# # Route hiển thị chi tiết bài viết
+# @post_bp.route('/post_detail/<post_id>', methods=['GET', 'POST'])
+# def post_detail(post_id):
+#     # Lấy bài viết từ database
+#     try:
+#         post = db.posts.find_one({"_id": ObjectId(post_id)})  
+#     except Exception as e:
+#         flash(f"Error fetching post: {str(e)}", 'error')
+#         return redirect(url_for('home.home'))  # Nếu không thể chuyển đổi ID, redirect về trang chủ
+
+#     if not post:
+#         flash("Bài viết không tồn tại.", 'error')
+#         return redirect(url_for('home.home'))  # Nếu bài viết không tồn tại, trả về trang chủ
+
+#     # Lấy các bình luận của bài viết
+#     comments = db.comments.find({"post_id": ObjectId(post_id)})
+
+#     if request.method == 'POST':
+#         if 'user_id' not in session:
+#             flash("Bạn cần đăng nhập để bình luận!", 'error')
+#             return redirect(url_for('auth.auth'))  # Nếu chưa đăng nhập, chuyển hướng đến trang đăng nhập
+        
+#         comment_content = request.form['content']  
+
+#         if not comment_content:
+#             flash("Bình luận không thể trống.", 'error')
+#             return redirect(url_for('post.post_detail', post_id=post_id))  # Nếu nội dung bình luận trống, redirect lại trang bài viết
+
+#         try:
+#             # Phân loại cảm xúc của bình luận
+#             sentiment = sentimentAnalysisOneComment(model, tokenizer, comment_content)
+
+#             # Thêm bình luận vào MongoDB
+#             comment = {
+#                 'post_id': ObjectId(post_id),
+#                 'user_id': session['user_id'],
+#                 'content': comment_content,
+#                 'sentiment': sentiment,  
+#                 'created_at': datetime.now()
+#             }
+
+#             db.comments.insert_one(comment) 
+#             flash("Bình luận đã được đăng thành công!", 'success')
+#             return redirect(url_for('post.post_detail', post_id=post_id))  # Chuyển hướng lại về trang chi tiết bài viết
+#         except Exception as e:
+#             flash(f"Không thể lưu bình luận: {str(e)}", 'error')  
+#             return redirect(url_for('post.post_detail', post_id=post_id))  # Nếu có lỗi, quay lại trang bài viết
+
+#     return render_template('post_detail.html', post=post, comments=comments)
 @post_bp.route('/post_detail/<post_id>', methods=['GET', 'POST'])
 def post_detail(post_id):
     # Lấy bài viết từ database
@@ -52,8 +100,22 @@ def post_detail(post_id):
         flash("Bài viết không tồn tại.", 'error')
         return redirect(url_for('home.home'))  # Nếu bài viết không tồn tại, trả về trang chủ
 
+    # Lấy các tham số lọc từ URL (nếu có)
+    sentiment_filter = request.args.get('sentiment', None)  # lấy giá trị 'sentiment' từ query string
+
     # Lấy các bình luận của bài viết
-    comments = db.comments.find({"post_id": ObjectId(post_id)})
+    if sentiment_filter:
+        # Nếu có filter, tìm các bình luận theo cảm xúc
+        comments = db.comments.find({"post_id": ObjectId(post_id), "sentiment": sentiment_filter})
+    else:
+        # Nếu không có filter, lấy tất cả bình luận
+        comments = db.comments.find({"post_id": ObjectId(post_id)})
+
+    # Đếm số lượng bình luận cho mỗi loại cảm xúc
+    total_comments = db.comments.count_documents({"post_id": ObjectId(post_id)})
+    positive_count = db.comments.count_documents({"post_id": ObjectId(post_id), "sentiment": "Positive"})
+    neutral_count = db.comments.count_documents({"post_id": ObjectId(post_id), "sentiment": "Neutral"})
+    negative_count = db.comments.count_documents({"post_id": ObjectId(post_id), "sentiment": "Negative"})
 
     if request.method == 'POST':
         if 'user_id' not in session:
@@ -86,4 +148,6 @@ def post_detail(post_id):
             flash(f"Không thể lưu bình luận: {str(e)}", 'error')  
             return redirect(url_for('post.post_detail', post_id=post_id))  # Nếu có lỗi, quay lại trang bài viết
 
-    return render_template('post_detail.html', post=post, comments=comments)
+    return render_template('post_detail.html', post=post, comments=comments,
+                           sentiment_filter=sentiment_filter, total_comments=total_comments,
+                           positive_count=positive_count, neutral_count=neutral_count, negative_count=negative_count)
