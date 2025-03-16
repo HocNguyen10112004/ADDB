@@ -17,6 +17,7 @@
                 {% if 'user_id' in session %}
                     <!-- Nếu người dùng đã đăng nhập, hiển thị nút Logout -->
                     <a href="{{ url_for('auth.logout') }}" class="btn logout-btn">Logout</a>
+                    <a href="{{ url_for('auth.profile') }}" class="btn profile-btn">Trang Cá Nhân</a>
                 {% else %}
                     <!-- Nếu người dùng chưa đăng nhập, hiển thị nút Đăng nhập -->
                     <a href="{{ url_for('auth.auth') }}" class="btn login-btn">Đăng Nhập</a>

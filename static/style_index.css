@@ -40,7 +40,9 @@ body {
 .logout-btn {
     background-color: #dc3545;
 }
-
+.profile-btn {
+    background-color: #007bff;
+}
 .create-post-btn {
     background-color: #28a745;
 }

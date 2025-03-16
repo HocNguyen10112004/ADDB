@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from connect import connectToMongoDB
-
+from bson import ObjectId  
 auth_bp = Blueprint('auth', __name__, template_folder='templates')
 client, db = connectToMongoDB()
 
@@ -53,3 +53,41 @@ def logout():
     session.clear()  # Xóa toàn bộ session khi đăng xuất
     flash('Đăng xuất thành công!', 'success')
     return redirect(url_for('auth.auth'))  # Chuyển hướng về trang đăng nhập
+
+@auth_bp.route('/profile')
+def profile():
+    # Kiểm tra xem người dùng đã đăng nhập chưa
+    if 'user_id' not in session:
+        flash("Bạn cần đăng nhập để xem trang profile", 'error')
+        return redirect(url_for('auth.auth'))  # Nếu chưa đăng nhập, chuyển đến trang đăng nhập
+
+    user_id = session['user_id']
+    user = db.users.find_one({"_id": ObjectId(user_id)})  # Lấy thông tin người dùng từ database
+
+    if not user:
+        flash("Người dùng không tồn tại.", 'error')
+        return redirect(url_for('home.home'))  # Nếu không tìm thấy người dùng, quay lại trang chủ
+
+    # Lấy số lượng bình luận theo mỗi loại cảm xúc của người dùng
+    positive_comments = db.comments.count_documents({"user_id": user_id, "sentiment": "Positive"})
+    neutral_comments = db.comments.count_documents({"user_id": user_id, "sentiment": "Neutral"})
+    negative_comments = db.comments.count_documents({"user_id": user_id, "sentiment": "Negative"})
+
+    # Lấy số lượng bài đăng tiêu cực của người dùng
+    negative_posts_count = 0
+    posts = db.posts.find({"user_id": user_id})  # Lấy tất cả bài đăng của người dùng
+
+    for post in posts:
+        comments = db.comments.find({"post_id": post['_id']})  # Lấy các bình luận của bài đăng
+        comments_list = list(comments)
+
+        # Đếm số lượng bình luận negative trong bài đăng này
+        negative_count = sum(1 for comment in comments_list if comment['sentiment'] == 'Negative')
+        
+        # Nếu số lượng bình luận negative > 50% tổng số bình luận, bài đăng được đánh dấu là tiêu cực
+        if len(comments_list) > 0 and (negative_count / len(comments_list)) > 0.5:
+            negative_posts_count += 1
+
+    return render_template('profile.html', user=user, positive_comments=positive_comments,
+                           neutral_comments=neutral_comments, negative_comments=negative_comments,
+                           negative_posts_count=negative_posts_count)

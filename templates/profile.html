@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Cá Nhân</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_profile.css') }}">
+</head>
+<body>
+
+<div class="container">
+    <h1>Trang Cá Nhân của {{ user.full_name }}</h1>
+    
+    <div class="user-info">
+        <p><strong>Email:</strong> {{ user.gmail }}</p>
+        <p><strong>Full Name:</strong> {{ user.full_name }}</p>
+    </div>
+
+    <h2>Thống kê:</h2>
+    <ul>
+        <li><strong>Số lượng bình luận Positive:</strong> {{ positive_comments }}</li>
+        <li><strong>Số lượng bình luận Neutral:</strong> {{ neutral_comments }}</li>
+        <li><strong>Số lượng bình luận Negative:</strong> {{ negative_comments }}</li>
+        <li><strong>Số lượng bài đăng tiêu cực:</strong> {{ negative_posts_count }}</li>
+    </ul>
+
+    <a href="{{ url_for('home.home') }}">Trở về trang chủ</a>
+</div>
+
+</body>
+</html>
