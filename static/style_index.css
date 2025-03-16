@@ -116,3 +116,14 @@ a {
 .post-title, .post-content {
     text-decoration: none; /* Đảm bảo rằng tiêu đề và nội dung của bài viết không bị gạch chân */
 }
+/* Kiểu cho bài đăng tiêu cực */
+.negative-post {
+    background-color: #f8d7da;  /* Màu nền đỏ nhạt */
+    border-left: 5px solid red;  /* Thêm đường viền bên trái màu đỏ */
+}
+
+.negative-label {
+    color: red;
+    font-weight: bold;
+    font-size: 14px;
+}

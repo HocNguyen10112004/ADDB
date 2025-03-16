@@ -15,7 +15,7 @@
     
     <h1>{{ post.title }}</h1>
     <p>{{ post.content }}</p>
-    <p><strong>Đăng bởi:</strong> Người dùng ID: {{ post.user_id }} vào {{ post.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+    <p><strong>Đăng bởi:</strong> Người dùng {{ post.user_full_name }} vào {{ post.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
 
     <h2>Bình luận</h2>
     

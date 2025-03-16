@@ -43,6 +43,12 @@ def post_detail(post_id):
     # Lấy bài viết từ database
     try:
         post = db.posts.find_one({"_id": ObjectId(post_id)})  
+        # Lấy thông tin người dùng từ collection 'users' dựa trên user_id
+        user = db.users.find_one({"_id": ObjectId(post['user_id'])})  # Lấy thông tin người dùng theo _id
+        if user:
+            post['user_full_name'] = user.get('full_name', 'Unknown')  # Lưu tên người dùng
+        else:
+            post['user_full_name'] = 'Unknown'  # Nếu không tìm thấy user, gán 'Unknown'
     except Exception as e:
         flash(f"Error fetching post: {str(e)}", 'error')
         return redirect(url_for('home.home'))  # Nếu không thể chuyển đổi ID, redirect về trang chủ

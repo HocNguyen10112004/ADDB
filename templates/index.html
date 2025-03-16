@@ -36,13 +36,16 @@
             <div class="posts">
     {% for post in posts %}
     
-        <div class="post-card">
+        <div class="post-card {% if post.is_negative %} negative-post {% endif %}">
             <a href="{{ url_for('post.post_detail', post_id=post._id) }}">
             <h2 class="post-title">{{ post.title }}</h2>
             
             <p class="post-content">{{ post.content }}</p>
-            <p class="post-info">Đăng bởi người dùng ID: {{ post.user_id }} vào {{ post.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+            <p class="post-info">Đăng bởi người dùng: {{ post.user_full_name }} vào {{ post.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
             </a>
+            {% if post.is_negative %}
+                    <p class="negative-label">Bài đăng tiêu cực</p>
+                {% endif %}
         </div>
         
     {% endfor %}

@@ -4,23 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng Bài</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_post.css') }}">
 </head>
 <body>
-    <h1>Đăng Bài Mới</h1>
 
     <!-- Form đăng bài -->
     <form method="POST" action="/post">
+        <h1>Đăng Bài Mới</h1>
+
         <div class="input-group">
             <label for="title">Tiêu đề</label>
             <input type="text" id="title" name="title" required>
         </div>
+
         <div class="input-group">
             <label for="content">Nội dung</label>
             <textarea id="content" name="content" required></textarea>
         </div>
+
         <button type="submit">Đăng bài</button>
+        <!-- Nút trở lại trang chủ -->
+        <button type="button" class="back-to-home"><a href="{{ url_for('home.home') }}">Trở lại trang chủ</a></button>
     </form>
 
-    <p><a href="{{ url_for('home.home') }}">Trở lại trang chủ</a></p>
 </body>
 </html>
