@@ -44,3 +44,55 @@ a {
 a:hover {
     background-color: #45a049;
 }
+.container {
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ccc;
+}
+
+th {
+    background-color: #f4f4f4;
+}
+
+canvas {
+    margin-top: 10px;
+}
+/* Định dạng container của biểu đồ thanh ngang */
+.bar-container {
+    display: flex;
+    height: 20px; /* Chiều cao của thanh ngang */
+    border-radius: 5px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+/* Các thanh với màu khác nhau */
+.bar {
+    height: 100%; /* Chiều cao 100% của container */
+    text-align: center;
+    line-height: 20px; /* Căn giữa nội dung nếu có (tùy thuộc vào nhu cầu) */
+}
+
+.positive-bar {
+    background-color: #4CAF50; /* Màu xanh cho Positive */
+}
+
+.neutral-bar {
+    background-color: #FFC107; /* Màu vàng cho Neutral */
+}
+
+.negative-bar {
+    background-color: #F44336; /* Màu đỏ cho Negative */
+}

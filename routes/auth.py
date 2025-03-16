@@ -73,16 +73,42 @@ def profile():
     neutral_comments = db.comments.count_documents({"user_id": user_id, "sentiment": "Neutral"})
     negative_comments = db.comments.count_documents({"user_id": user_id, "sentiment": "Negative"})
 
+    # Lấy tổng số lượng bài đăng của người dùng
+    total_posts = db.posts.count_documents({"user_id": user_id})
+
     # Lấy số lượng bài đăng tiêu cực của người dùng
     negative_posts_count = 0
-    posts = db.posts.find({"user_id": user_id})  # Lấy tất cả bài đăng của người dùng
+    post_details = []  # Lưu trữ chi tiết số lượng bình luận từng loại của mỗi bài đăng
 
+    posts = db.posts.find({"user_id": user_id})  # Lấy tất cả bài đăng của người dùng
     for post in posts:
         comments = db.comments.find({"post_id": post['_id']})  # Lấy các bình luận của bài đăng
         comments_list = list(comments)
 
-        # Đếm số lượng bình luận negative trong bài đăng này
+        # Đếm số lượng bình luận loại 'Positive', 'Neutral', 'Negative'
+        positive_count = sum(1 for comment in comments_list if comment['sentiment'] == 'Positive')
+        neutral_count = sum(1 for comment in comments_list if comment['sentiment'] == 'Neutral')
         negative_count = sum(1 for comment in comments_list if comment['sentiment'] == 'Negative')
+
+        # Tính tỷ lệ phần trăm của mỗi loại cảm xúc trong tổng số bình luận của bài đăng
+        if len(comments_list) > 0:
+            positive_percentage = (positive_count / len(comments_list)) * 100
+            neutral_percentage = (neutral_count / len(comments_list)) * 100
+            negative_percentage = (negative_count / len(comments_list)) * 100
+        else:
+            positive_percentage = neutral_percentage = negative_percentage = 0
+
+        # Lưu thông tin chi tiết bình luận cho mỗi bài đăng
+        post_details.append({
+            'title': post['title'],
+            'positive_count': positive_count,
+            'neutral_count': neutral_count,
+            'negative_count': negative_count,
+            'total_comments': len(comments_list),  # Tổng số bình luận của bài đăng
+            'positive_percentage': positive_percentage,
+            'neutral_percentage': neutral_percentage,
+            'negative_percentage': negative_percentage,
+        })
         
         # Nếu số lượng bình luận negative > 50% tổng số bình luận, bài đăng được đánh dấu là tiêu cực
         if len(comments_list) > 0 and (negative_count / len(comments_list)) > 0.5:
@@ -90,7 +116,10 @@ def profile():
 
     return render_template('profile.html', user=user, positive_comments=positive_comments,
                            neutral_comments=neutral_comments, negative_comments=negative_comments,
-                           negative_posts_count=negative_posts_count)
+                           negative_posts_count=negative_posts_count, total_posts=total_posts,
+                           post_details=post_details)
+
+
 @auth_bp.route('/profile/<user_id>')
 def profile1(user_id):
     # Lấy thông tin người dùng từ database
@@ -100,25 +129,53 @@ def profile1(user_id):
         flash("Người dùng không tồn tại.", 'error')
         return redirect(url_for('home.home'))
 
-    # Lấy các bình luận của người dùng này
-    comments = db.comments.find({"user_id": user_id})
-    
-    # Đếm số lượng bình luận theo từng loại cảm xúc
-    positive_count = db.comments.count_documents({"user_id": user_id, "sentiment": "Positive"})
-    neutral_count = db.comments.count_documents({"user_id": user_id, "sentiment": "Neutral"})
-    negative_count = db.comments.count_documents({"user_id": user_id, "sentiment": "Negative"})
+    # Lấy số lượng bình luận theo mỗi loại cảm xúc của người dùng
+    positive_comments = db.comments.count_documents({"user_id": user_id, "sentiment": "Positive"})
+    neutral_comments = db.comments.count_documents({"user_id": user_id, "sentiment": "Neutral"})
+    negative_comments = db.comments.count_documents({"user_id": user_id, "sentiment": "Negative"})
 
-    # Lấy số lượng bài đăng tiêu cực của người dùng (tính theo cách đã thảo luận trước đó)
+    # Lấy tổng số lượng bài đăng của người dùng
+    total_posts = db.posts.count_documents({"user_id": user_id})
+
+    # Lấy số lượng bài đăng tiêu cực của người dùng
     negative_posts_count = 0
-    posts = db.posts.find({"user_id": user_id})
+    post_details = []  # Lưu trữ chi tiết số lượng bình luận từng loại của mỗi bài đăng
+
+    posts = db.posts.find({"user_id": user_id})  # Lấy tất cả bài đăng của người dùng
     for post in posts:
-        comments_for_post = db.comments.find({"post_id": post['_id']})
-        comments_list = list(comments_for_post)
-        negative_count_in_post = sum(1 for comment in comments_list if comment['sentiment'] == 'Negative')
+        comments = db.comments.find({"post_id": post['_id']})  # Lấy các bình luận của bài đăng
+        comments_list = list(comments)
+
+        # Đếm số lượng bình luận loại 'Positive', 'Neutral', 'Negative'
+        positive_count = sum(1 for comment in comments_list if comment['sentiment'] == 'Positive')
+        neutral_count = sum(1 for comment in comments_list if comment['sentiment'] == 'Neutral')
+        negative_count = sum(1 for comment in comments_list if comment['sentiment'] == 'Negative')
+
+        # Tính tỷ lệ phần trăm của mỗi loại cảm xúc trong tổng số bình luận của bài đăng
+        if len(comments_list) > 0:
+            positive_percentage = (positive_count / len(comments_list)) * 100
+            neutral_percentage = (neutral_count / len(comments_list)) * 100
+            negative_percentage = (negative_count / len(comments_list)) * 100
+        else:
+            positive_percentage = neutral_percentage = negative_percentage = 0
+
+        # Lưu thông tin chi tiết bình luận cho mỗi bài đăng
+        post_details.append({
+            'title': post['title'],
+            'positive_count': positive_count,
+            'neutral_count': neutral_count,
+            'negative_count': negative_count,
+            'total_comments': len(comments_list),  # Tổng số bình luận của bài đăng
+            'positive_percentage': positive_percentage,
+            'neutral_percentage': neutral_percentage,
+            'negative_percentage': negative_percentage,
+        })
         
-        if len(comments_list) > 0 and (negative_count_in_post / len(comments_list)) > 0.5:
+        # Nếu số lượng bình luận negative > 50% tổng số bình luận, bài đăng được đánh dấu là tiêu cực
+        if len(comments_list) > 0 and (negative_count / len(comments_list)) > 0.5:
             negative_posts_count += 1
 
-    return render_template('user_profile.html', user=user, comments=comments, 
-                           positive_count=positive_count, neutral_count=neutral_count,
-                           negative_count=negative_count, negative_posts_count=negative_posts_count)
+    return render_template('profile.html', user=user, positive_comments=positive_comments,
+                           neutral_comments=neutral_comments, negative_comments=negative_comments,
+                           negative_posts_count=negative_posts_count, total_posts=total_posts,
+                           post_details=post_details)
